@@ -1,0 +1,1868 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>日本エンジニアの隠れた力 - 意識覚醒アンケート</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ===== Design System ===== */
+:root {
+  --bg-primary: #0a0e27;
+  --bg-secondary: #111640;
+  --bg-card: #1a1f4e;
+  --accent-gold: #d4a853;
+  --accent-gold-light: #f0d48a;
+  --accent-blue: #4a9eff;
+  --text-primary: #e8e8f0;
+  --text-secondary: #8888aa;
+  --text-accent: #d4a853;
+  --success: #4ecdc4;
+  --danger: #ff6b6b;
+  --border: rgba(212, 168, 83, 0.2);
+  --glow: rgba(212, 168, 83, 0.15);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Noto Sans JP', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ===== Sections ===== */
+.section {
+  display: none;
+  min-height: 100vh;
+  padding: 40px 20px;
+  animation: fadeIn 0.6s ease;
+}
+.section.active { display: block; }
+#section-landing.active { display: flex; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* ===== Progress Bar ===== */
+.progress-bar-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: var(--bg-secondary);
+  padding: 12px 20px;
+  display: none;
+}
+.progress-bar-container.visible { display: block; }
+.progress-bar-track {
+  height: 4px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-gold), var(--accent-gold-light));
+  border-radius: 2px;
+  transition: width 0.5s ease;
+  width: 0%;
+}
+.progress-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+  text-align: right;
+}
+
+/* ===== Cards ===== */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 32px;
+  margin-bottom: 24px;
+  transition: border-color 0.3s;
+}
+.card:hover { border-color: rgba(212, 168, 83, 0.4); }
+
+/* ===== Typography ===== */
+h1 {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--accent-gold);
+  margin-bottom: 16px;
+  line-height: 1.4;
+}
+h2 {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+}
+h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--accent-gold-light);
+  margin-bottom: 8px;
+}
+p { line-height: 1.8; color: var(--text-secondary); margin-bottom: 12px; }
+.accent-text { color: var(--accent-gold); }
+.small-text { font-size: 13px; color: var(--text-secondary); }
+
+/* ===== Buttons ===== */
+.btn {
+  display: inline-block;
+  padding: 14px 40px;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-decoration: none;
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent-gold), #c49a3c);
+  color: #0a0e27;
+  box-shadow: 0 4px 20px rgba(212, 168, 83, 0.3);
+}
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 30px rgba(212, 168, 83, 0.5);
+}
+.btn-secondary {
+  background: transparent;
+  color: var(--accent-gold);
+  border: 1px solid var(--accent-gold);
+}
+.btn-secondary:hover {
+  background: rgba(212, 168, 83, 0.1);
+}
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none !important;
+}
+.btn-group {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 32px;
+}
+
+/* ===== Likert Scale ===== */
+.likert-group { margin-bottom: 28px; }
+.likert-label {
+  font-size: 15px;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+  font-weight: 500;
+}
+.likert-scale {
+  display: flex;
+  gap: 0;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+}
+.likert-scale::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 24px;
+  right: 24px;
+  height: 2px;
+  background: rgba(255,255,255,0.1);
+  transform: translateY(-50%);
+  z-index: 0;
+  pointer-events: none;
+}
+.likert-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  z-index: 1;
+  flex: 1;
+}
+.likert-option input { display: none; }
+.likert-dot {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.2);
+  background: var(--bg-secondary);
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+.likert-option input:checked + .likert-dot {
+  border-color: var(--accent-gold);
+  background: linear-gradient(135deg, var(--accent-gold), #c49a3c);
+  color: #0a0e27;
+  box-shadow: 0 0 20px rgba(212, 168, 83, 0.4);
+  transform: scale(1.15);
+}
+.likert-option:hover .likert-dot {
+  border-color: rgba(212, 168, 83, 0.5);
+}
+.likert-ends {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+/* ===== Radio Options ===== */
+.radio-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.radio-option {
+  display: block;
+  padding: 12px 16px;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-size: 14px;
+}
+.radio-option:hover {
+  border-color: rgba(212, 168, 83, 0.4);
+  background: rgba(212, 168, 83, 0.05);
+}
+.radio-option input { display: none; }
+.radio-option input:checked + span,
+.radio-option.selected {
+  color: var(--accent-gold);
+}
+.radio-option:has(input:checked) {
+  border-color: var(--accent-gold);
+  background: rgba(212, 168, 83, 0.1);
+  box-shadow: 0 0 10px rgba(212, 168, 83, 0.1);
+}
+
+/* ===== Textarea ===== */
+textarea {
+  width: 100%;
+  min-height: 100px;
+  padding: 16px;
+  background: var(--bg-secondary);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.6;
+  resize: vertical;
+  transition: border-color 0.3s;
+}
+textarea:focus {
+  outline: none;
+  border-color: var(--accent-gold);
+}
+textarea::placeholder { color: var(--text-secondary); opacity: 0.6; }
+
+/* ===== Context Box ===== */
+.context-box {
+  background: rgba(212, 168, 83, 0.05);
+  border-left: 3px solid var(--accent-gold);
+  padding: 16px 20px;
+  border-radius: 0 10px 10px 0;
+  margin-bottom: 24px;
+  font-size: 14px;
+  line-height: 1.8;
+}
+.context-box p { color: var(--text-primary); margin-bottom: 8px; }
+.context-box .examples { color: var(--text-secondary); font-size: 13px; }
+
+/* ===== Landing ===== */
+#section-landing {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+#section-landing .container { position: relative; z-index: 1; }
+.landing-symbol {
+  font-size: 48px;
+  margin-bottom: 24px;
+  display: block;
+}
+.landing-title {
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--accent-gold);
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+.landing-subtitle {
+  font-size: 20px;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+  font-weight: 300;
+  line-height: 1.8;
+}
+.landing-meta {
+  margin-top: 32px;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+.landing-meta span { margin: 0 12px; }
+.particle-bg {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  z-index: 0;
+  pointer-events: none;
+}
+.particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: var(--accent-gold);
+  border-radius: 50%;
+  opacity: 0;
+  animation: particleFloat linear infinite;
+}
+@keyframes particleFloat {
+  0% { opacity: 0; transform: translateY(100vh) scale(0); }
+  10% { opacity: 0.6; }
+  90% { opacity: 0.6; }
+  100% { opacity: 0; transform: translateY(-20px) scale(1); }
+}
+
+/* ===== Question Header ===== */
+.question-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+.question-number {
+  display: inline-block;
+  font-size: 13px;
+  color: var(--accent-gold);
+  border: 1px solid var(--accent-gold);
+  padding: 4px 16px;
+  border-radius: 20px;
+  margin-bottom: 12px;
+}
+
+/* ===== Dashboard ===== */
+.tab-nav {
+  display: flex;
+  gap: 0;
+  margin-bottom: 24px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+.tab-btn {
+  padding: 12px 24px;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.3s;
+}
+.tab-btn.active {
+  color: var(--accent-gold);
+  border-bottom-color: var(--accent-gold);
+}
+.tab-btn:hover { color: var(--text-primary); }
+.tab-content { display: none; }
+.tab-content.active { display: block; animation: fadeIn 0.4s ease; }
+
+.chart-container {
+  position: relative;
+  height: 350px;
+  margin: 20px 0;
+}
+
+.type-badge {
+  text-align: center;
+  padding: 24px;
+  margin-bottom: 24px;
+  background: linear-gradient(135deg, rgba(212,168,83,0.1), rgba(74,158,255,0.05));
+  border: 1px solid var(--border);
+  border-radius: 16px;
+}
+.type-badge .type-icon { font-size: 48px; margin-bottom: 12px; display: block; }
+.type-badge .type-name {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--accent-gold);
+  margin-bottom: 4px;
+}
+.type-badge .type-subtitle {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+}
+.type-badge .type-description {
+  font-size: 15px;
+  color: var(--text-primary);
+  line-height: 1.6;
+}
+
+.shift-bar-container { margin-bottom: 16px; }
+.shift-bar-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+.shift-bar-label .label-name { color: var(--text-primary); }
+.shift-bar-label .label-value { color: var(--accent-gold); font-weight: 600; }
+.shift-bar {
+  height: 8px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+.shift-bar-before {
+  height: 100%;
+  background: var(--text-secondary);
+  border-radius: 4px;
+  position: absolute;
+  transition: width 0.8s ease;
+}
+.shift-bar-after {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-gold), var(--accent-gold-light));
+  border-radius: 4px;
+  position: absolute;
+  transition: width 0.8s ease;
+}
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 16px;
+  margin: 20px 0;
+}
+.stat-card {
+  text-align: center;
+  padding: 20px;
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.05);
+}
+.stat-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--accent-gold);
+}
+.stat-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+.cluster-legend {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 20px;
+}
+.cluster-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  background: var(--bg-secondary);
+  border-radius: 10px;
+}
+.cluster-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.cluster-info .cluster-name { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+.cluster-info .cluster-count { font-size: 11px; color: var(--text-secondary); }
+
+.word-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  padding: 20px;
+  min-height: 150px;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 600px) {
+  .section { padding: 60px 16px 40px; }
+  .card { padding: 20px; }
+  h1 { font-size: 24px; }
+  .landing-title { font-size: 26px; }
+  .landing-subtitle { font-size: 16px; }
+  .radio-grid { grid-template-columns: 1fr; }
+  .likert-dot { width: 34px; height: 34px; font-size: 12px; }
+  .tab-nav { overflow-x: auto; }
+  .tab-btn { padding: 10px 14px; font-size: 13px; white-space: nowrap; }
+  .cluster-legend { grid-template-columns: 1fr; }
+  .btn-group { flex-direction: column; align-items: center; }
+}
+</style>
+</head>
+<body>
+
+<!-- Progress Bar -->
+<div class="progress-bar-container" id="progressBar">
+  <div class="progress-bar-track">
+    <div class="progress-bar-fill" id="progressFill"></div>
+  </div>
+  <div class="progress-label" id="progressLabel">STEP 1/5</div>
+</div>
+
+<!-- ===== LANDING ===== -->
+<div class="section active" id="section-landing">
+  <div class="particle-bg" id="particleBg"></div>
+  <div class="container">
+    <span class="landing-symbol">&#10022;</span>
+    <h1 class="landing-title">日本エンジニアの隠れた力</h1>
+    <p class="landing-subtitle">
+      あなたの「当たり前」は、<br>
+      世界が驚く「特別」かもしれない。
+    </p>
+    <p style="color: var(--text-secondary); font-size: 15px; margin-top: 16px; line-height: 1.8;">
+      この調査は、日本のエンジニアが持つ<br>
+      本当の強みを再発見するためのものです。
+    </p>
+    <div style="margin-top: 40px;">
+      <button class="btn btn-primary" onclick="navigateTo('attributes')">調査を始める</button>
+    </div>
+    <div class="landing-meta">
+      <span>所要時間: 約10分</span>
+      <span>|</span>
+      <span id="respondentCount">0</span>名が参加済み
+    </div>
+  </div>
+</div>
+
+<!-- ===== SECTION 1: ATTRIBUTES ===== -->
+<div class="section" id="section-attributes">
+  <div class="container">
+    <div class="question-header">
+      <span class="question-number">STEP 1 / 5</span>
+      <h1>あなた自身のことを<br>教えてください</h1>
+      <p>属性情報はクラスター分析に使用されます</p>
+    </div>
+
+    <div class="card">
+      <h3>年齢層</h3>
+      <div class="radio-grid" data-field="ageGroup">
+        <label class="radio-option"><input type="radio" name="ageGroup" value="20-29"><span>20代</span></label>
+        <label class="radio-option"><input type="radio" name="ageGroup" value="30-39"><span>30代</span></label>
+        <label class="radio-option"><input type="radio" name="ageGroup" value="40-49"><span>40代</span></label>
+        <label class="radio-option"><input type="radio" name="ageGroup" value="50-59"><span>50代</span></label>
+        <label class="radio-option"><input type="radio" name="ageGroup" value="60+"><span>60代以上</span></label>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>エンジニア歴</h3>
+      <p class="small-text" style="margin-bottom: 12px;">歴の長さが価値ではない。しかし経験は確実にあなたの武器になっている。</p>
+      <div class="radio-grid" data-field="yearsOfExperience">
+        <label class="radio-option"><input type="radio" name="yearsOfExperience" value="0-3"><span>0〜3年</span></label>
+        <label class="radio-option"><input type="radio" name="yearsOfExperience" value="3-5"><span>3〜5年</span></label>
+        <label class="radio-option"><input type="radio" name="yearsOfExperience" value="5-10"><span>5〜10年</span></label>
+        <label class="radio-option"><input type="radio" name="yearsOfExperience" value="10-15"><span>10〜15年</span></label>
+        <label class="radio-option"><input type="radio" name="yearsOfExperience" value="15-20"><span>15〜20年</span></label>
+        <label class="radio-option"><input type="radio" name="yearsOfExperience" value="20+"><span>20年以上</span></label>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>技術分野</h3>
+      <div class="radio-grid" data-field="technicalField">
+        <label class="radio-option"><input type="radio" name="technicalField" value="manufacturing"><span>製造・生産技術</span></label>
+        <label class="radio-option"><input type="radio" name="technicalField" value="software"><span>ソフトウェア・IT</span></label>
+        <label class="radio-option"><input type="radio" name="technicalField" value="electronics"><span>エレクトロニクス</span></label>
+        <label class="radio-option"><input type="radio" name="technicalField" value="automotive"><span>自動車・輸送機器</span></label>
+        <label class="radio-option"><input type="radio" name="technicalField" value="chemical"><span>化学・素材</span></label>
+        <label class="radio-option"><input type="radio" name="technicalField" value="infrastructure"><span>インフラ・建設</span></label>
+        <label class="radio-option"><input type="radio" name="technicalField" value="energy"><span>エネルギー</span></label>
+        <label class="radio-option"><input type="radio" name="technicalField" value="other"><span>その他</span></label>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>企業規模</h3>
+      <div class="radio-grid" data-field="companySize">
+        <label class="radio-option"><input type="radio" name="companySize" value="startup"><span>スタートアップ</span></label>
+        <label class="radio-option"><input type="radio" name="companySize" value="small"><span>中小（〜300人）</span></label>
+        <label class="radio-option"><input type="radio" name="companySize" value="medium"><span>中堅（〜1,000人）</span></label>
+        <label class="radio-option"><input type="radio" name="companySize" value="large"><span>大企業（〜10,000人）</span></label>
+        <label class="radio-option"><input type="radio" name="companySize" value="enterprise"><span>超大企業（10,000人〜）</span></label>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>役職レベル</h3>
+      <div class="radio-grid" data-field="roleLevel">
+        <label class="radio-option"><input type="radio" name="roleLevel" value="junior"><span>若手</span></label>
+        <label class="radio-option"><input type="radio" name="roleLevel" value="mid"><span>中堅</span></label>
+        <label class="radio-option"><input type="radio" name="roleLevel" value="senior"><span>シニア</span></label>
+        <label class="radio-option"><input type="radio" name="roleLevel" value="lead"><span>リーダー</span></label>
+        <label class="radio-option"><input type="radio" name="roleLevel" value="manager"><span>マネージャー</span></label>
+        <label class="radio-option"><input type="radio" name="roleLevel" value="executive"><span>エグゼクティブ</span></label>
+      </div>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn btn-secondary" onclick="navigateTo('landing')">戻る</button>
+      <button class="btn btn-primary" id="btnToSection2" onclick="navigateTo('before')">次へ</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SECTION 2: BEFORE AWARENESS ===== -->
+<div class="section" id="section-before">
+  <div class="container">
+    <div class="question-header">
+      <span class="question-number">STEP 2 / 5</span>
+      <h1>今のあなたの率直な<br>気持ちを教えてください</h1>
+      <p>正解はありません。感じたままに答えてください。</p>
+    </div>
+
+    <div class="card">
+      <div class="likert-group">
+        <div class="likert-label">日本のエンジニアであることに誇りを感じていますか？</div>
+        <div class="likert-scale" data-field="before_pride">
+          <label class="likert-option"><input type="radio" name="before_pride" value="1"><div class="likert-dot">1</div></label>
+          <label class="likert-option"><input type="radio" name="before_pride" value="2"><div class="likert-dot">2</div></label>
+          <label class="likert-option"><input type="radio" name="before_pride" value="3"><div class="likert-dot">3</div></label>
+          <label class="likert-option"><input type="radio" name="before_pride" value="4"><div class="likert-dot">4</div></label>
+          <label class="likert-option"><input type="radio" name="before_pride" value="5"><div class="likert-dot">5</div></label>
+        </div>
+        <div class="likert-ends"><span>全く感じない</span><span>強く感じる</span></div>
+      </div>
+
+      <div class="likert-group">
+        <div class="likert-label">自分の技術力は世界に通用すると思いますか？</div>
+        <div class="likert-scale" data-field="before_confidence">
+          <label class="likert-option"><input type="radio" name="before_confidence" value="1"><div class="likert-dot">1</div></label>
+          <label class="likert-option"><input type="radio" name="before_confidence" value="2"><div class="likert-dot">2</div></label>
+          <label class="likert-option"><input type="radio" name="before_confidence" value="3"><div class="likert-dot">3</div></label>
+          <label class="likert-option"><input type="radio" name="before_confidence" value="4"><div class="likert-dot">4</div></label>
+          <label class="likert-option"><input type="radio" name="before_confidence" value="5"><div class="likert-dot">5</div></label>
+        </div>
+        <div class="likert-ends"><span>全く思わない</span><span>強く思う</span></div>
+      </div>
+
+      <div class="likert-group">
+        <div class="likert-label">日本のエンジニアリングにはイノベーションを起こす力があると思いますか？</div>
+        <div class="likert-scale" data-field="before_innovation">
+          <label class="likert-option"><input type="radio" name="before_innovation" value="1"><div class="likert-dot">1</div></label>
+          <label class="likert-option"><input type="radio" name="before_innovation" value="2"><div class="likert-dot">2</div></label>
+          <label class="likert-option"><input type="radio" name="before_innovation" value="3"><div class="likert-dot">3</div></label>
+          <label class="likert-option"><input type="radio" name="before_innovation" value="4"><div class="likert-dot">4</div></label>
+          <label class="likert-option"><input type="radio" name="before_innovation" value="5"><div class="likert-dot">5</div></label>
+        </div>
+        <div class="likert-ends"><span>全く思わない</span><span>強く思う</span></div>
+      </div>
+
+      <div class="likert-group">
+        <div class="likert-label">日本のエンジニアリングは国際的に競争力があると感じますか？</div>
+        <div class="likert-scale" data-field="before_globalCompetitiveness">
+          <label class="likert-option"><input type="radio" name="before_globalCompetitiveness" value="1"><div class="likert-dot">1</div></label>
+          <label class="likert-option"><input type="radio" name="before_globalCompetitiveness" value="2"><div class="likert-dot">2</div></label>
+          <label class="likert-option"><input type="radio" name="before_globalCompetitiveness" value="3"><div class="likert-dot">3</div></label>
+          <label class="likert-option"><input type="radio" name="before_globalCompetitiveness" value="4"><div class="likert-dot">4</div></label>
+          <label class="likert-option"><input type="radio" name="before_globalCompetitiveness" value="5"><div class="likert-dot">5</div></label>
+        </div>
+        <div class="likert-ends"><span>全く感じない</span><span>強く感じる</span></div>
+      </div>
+
+      <div class="likert-group">
+        <div class="likert-label">日本のエンジニアリングの将来は明るいと思いますか？</div>
+        <div class="likert-scale" data-field="before_futureOptimism">
+          <label class="likert-option"><input type="radio" name="before_futureOptimism" value="1"><div class="likert-dot">1</div></label>
+          <label class="likert-option"><input type="radio" name="before_futureOptimism" value="2"><div class="likert-dot">2</div></label>
+          <label class="likert-option"><input type="radio" name="before_futureOptimism" value="3"><div class="likert-dot">3</div></label>
+          <label class="likert-option"><input type="radio" name="before_futureOptimism" value="4"><div class="likert-dot">4</div></label>
+          <label class="likert-option"><input type="radio" name="before_futureOptimism" value="5"><div class="likert-dot">5</div></label>
+        </div>
+        <div class="likert-ends"><span>全く思わない</span><span>強く思う</span></div>
+      </div>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn btn-secondary" onclick="navigateTo('attributes')">戻る</button>
+      <button class="btn btn-primary" onclick="navigateTo('q1')">次へ</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SECTION 3: CORE QUESTION 1 ===== -->
+<div class="section" id="section-q1">
+  <div class="container">
+    <div class="question-header">
+      <span class="question-number">問い 1 / 5</span>
+      <h1>「当たり前」の再発見</h1>
+    </div>
+
+    <div class="context-box">
+      <p>日本のエンジニアが「普通」だと思っていることが、海外では驚かれることがあります。</p>
+      <div class="examples">
+        例えば:<br>
+        ・工程の99.97%良品率を「まだ足りない」と感じる品質意識<br>
+        ・図面の0.01mmの公差にこだわる精密さ<br>
+        ・お客様の要望の「行間」を読む力
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>あなたが日常的にしていることで、海外のエンジニアが驚くほど高品質だと思うものはありますか？</h3>
+      <br>
+      <div class="likert-group">
+        <div class="likert-label">「自分にも当てはまる」と感じますか？</div>
+        <div class="likert-scale">
+          <label class="likert-option"><input type="radio" name="q1_likert" value="1"><div class="likert-dot">1</div></label>
+          <label class="likert-option"><input type="radio" name="q1_likert" value="2"><div class="likert-dot">2</div></label>
+          <label class="likert-option"><input type="radio" name="q1_likert" value="3"><div class="likert-dot">3</div></label>
+          <label class="likert-option"><input type="radio" name="q1_likert" value="4"><div class="likert-dot">4</div></label>
+          <label class="likert-option"><input type="radio" name="q1_likert" value="5"><div class="likert-dot">5</div></label>
+        </div>
+        <div class="likert-ends"><span>全く当てはまらない</span><span>非常に当てはまる</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>あなたの「当たり前」はどれに近いですか？</h3>
+      <div class="radio-grid" style="margin-top: 12px;">
+        <label class="radio-option"><input type="radio" name="q1_category" value="quality_control"><span>品質管理・検査の徹底</span></label>
+        <label class="radio-option"><input type="radio" name="q1_category" value="documentation"><span>ドキュメントの丁寧さ</span></label>
+        <label class="radio-option"><input type="radio" name="q1_category" value="teamwork"><span>チームの阿吽の呼吸</span></label>
+        <label class="radio-option"><input type="radio" name="q1_category" value="deadline"><span>納期遵守へのこだわり</span></label>
+        <label class="radio-option"><input type="radio" name="q1_category" value="safety"><span>安全基準の高さ</span></label>
+        <label class="radio-option"><input type="radio" name="q1_category" value="customer_care"><span>顧客対応の細やかさ</span></label>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>あなたの「当たり前」を具体的に教えてください</h3>
+      <textarea name="q1_text" placeholder="あなたが"普通"だと思っているけど、実は世界に誇れることを教えてください"></textarea>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn btn-secondary" onclick="navigateTo('before')">戻る</button>
+      <button class="btn btn-primary" onclick="navigateTo('q2')">次の問いへ</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SECTION 3: CORE QUESTION 2 ===== -->
+<div class="section" id="section-q2">
+  <div class="container">
+    <div class="question-header">
+      <span class="question-number">問い 2 / 5</span>
+      <h1>「改善」の力</h1>
+    </div>
+
+    <div class="context-box">
+      <p>トヨタの「カイゼン」は世界共通語になりました。でもカイゼンは工場だけのものではありません。</p>
+      <div class="examples">あなたのチームの小さな改善が、実は大きな革新の種かもしれません。</div>
+    </div>
+
+    <div class="card">
+      <h3>あなたのチームが行った「小さな改善」が、大きなブレイクスルーにつながった経験はありますか？</h3>
+      <br>
+      <div class="likert-group">
+        <div class="likert-label">このような経験に心当たりがありますか？</div>
+        <div class="likert-scale">
+          <label class="likert-option"><input type="radio" name="q2_likert" value="1"><div class="likert-dot">1</div></label>
+          <label class="likert-option"><input type="radio" name="q2_likert" value="2"><div class="likert-dot">2</div></label>
+          <label class="likert-option"><input type="radio" name="q2_likert" value="3"><div class="likert-dot">3</div></label>
+          <label class="likert-option"><input type="radio" name="q2_likert" value="4"><div class="likert-dot">4</div></label>
+          <label class="likert-option"><input type="radio" name="q2_likert" value="5"><div class="likert-dot">5</div></label>
+        </div>
+        <div class="likert-ends"><span>全くない</span><span>多くある</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>あなたの「改善」はどれに近いですか？</h3>
+      <div class="radio-grid" style="margin-top: 12px;">
+        <label class="radio-option"><input type="radio" name="q2_category" value="process_improvement"><span>工程・プロセスの改善</span></label>
+        <label class="radio-option"><input type="radio" name="q2_category" value="cost_reduction"><span>コスト削減の工夫</span></label>
+        <label class="radio-option"><input type="radio" name="q2_category" value="automation"><span>自動化・効率化</span></label>
+        <label class="radio-option"><input type="radio" name="q2_category" value="communication"><span>コミュニケーション改善</span></label>
+        <label class="radio-option"><input type="radio" name="q2_category" value="tool_development"><span>ツール・治具の開発</span></label>
+        <label class="radio-option"><input type="radio" name="q2_category" value="standard_upgrade"><span>基準・標準の引き上げ</span></label>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>あなたのチームの「小さな改善」を教えてください</h3>
+      <textarea name="q2_text" placeholder="小さな改善が大きな成果につながった経験を教えてください"></textarea>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn btn-secondary" onclick="navigateTo('q1')">戻る</button>
+      <button class="btn btn-primary" onclick="navigateTo('q3')">次の問いへ</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SECTION 3: CORE QUESTION 3 ===== -->
+<div class="section" id="section-q3">
+  <div class="container">
+    <div class="question-header">
+      <span class="question-number">問い 3 / 5</span>
+      <h1>「現場」の知恵</h1>
+    </div>
+
+    <div class="context-box">
+      <p>日本の「現場力」は世界が羨む力です。図面や仕様書には書かれていない、現場だからこそわかる知恵。</p>
+      <div class="examples">その知恵が新しいプロダクトを生むかもしれません。</div>
+    </div>
+
+    <div class="card">
+      <h3>もし今の現場の知見を自由に新しい技術や製品に活かせるとしたら、何を作りたいですか？</h3>
+      <br>
+      <div class="likert-group">
+        <div class="likert-label">現場の知見が新しい価値を生めると感じますか？</div>
+        <div class="likert-scale">
+          <label class="likert-option"><input type="radio" name="q3_likert" value="1"><div class="likert-dot">1</div></label>
+          <label class="likert-option"><input type="radio" name="q3_likert" value="2"><div class="likert-dot">2</div></label>
+          <label class="likert-option"><input type="radio" name="q3_likert" value="3"><div class="likert-dot">3</div></label>
+          <label class="likert-option"><input type="radio" name="q3_likert" value="4"><div class="likert-dot">4</div></label>
+          <label class="likert-option"><input type="radio" name="q3_likert" value="5"><div class="likert-dot">5</div></label>
+        </div>
+        <div class="likert-ends"><span>全く感じない</span><span>強く感じる</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>あなたの現場知識が活きるのは？</h3>
+      <div class="radio-grid" style="margin-top: 12px;">
+        <label class="radio-option"><input type="radio" name="q3_category" value="product_innovation"><span>全く新しい製品の創造</span></label>
+        <label class="radio-option"><input type="radio" name="q3_category" value="service_creation"><span>サービス・ソリューション</span></label>
+        <label class="radio-option"><input type="radio" name="q3_category" value="cross_industry"><span>他業界への技術応用</span></label>
+        <label class="radio-option"><input type="radio" name="q3_category" value="social_problem"><span>社会課題の解決</span></label>
+        <label class="radio-option"><input type="radio" name="q3_category" value="efficiency_tool"><span>効率化ツール・システム</span></label>
+        <label class="radio-option"><input type="radio" name="q3_category" value="quality_of_life"><span>生活品質の向上</span></label>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>あなたの現場知識で何を創りますか？</h3>
+      <textarea name="q3_text" placeholder="あなたの現場知識を自由に使えるなら、何を創りますか？夢でも構いません"></textarea>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn btn-secondary" onclick="navigateTo('q2')">戻る</button>
+      <button class="btn btn-primary" onclick="navigateTo('q4')">次の問いへ</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SECTION 3: CORE QUESTION 4 ===== -->
+<div class="section" id="section-q4">
+  <div class="container">
+    <div class="question-header">
+      <span class="question-number">問い 4 / 5</span>
+      <h1>「失敗」の転換</h1>
+    </div>
+
+    <div class="context-box">
+      <p>「失敗」プロジェクトにも、実は世界を変えるポテンシャルが眠っています。</p>
+      <div class="examples">
+        3Mのポスト・イットは接着剤の「失敗」から生まれました。<br>
+        あなたの「失敗」にも宝が眠っているかもしれません。
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>過去の「失敗した」プロジェクトの中に、世の中の役に立つ技術や知見が眠っていませんか？</h3>
+      <br>
+      <div class="likert-group">
+        <div class="likert-label">失敗の中に「活かせる何か」があると感じますか？</div>
+        <div class="likert-scale">
+          <label class="likert-option"><input type="radio" name="q4_likert" value="1"><div class="likert-dot">1</div></label>
+          <label class="likert-option"><input type="radio" name="q4_likert" value="2"><div class="likert-dot">2</div></label>
+          <label class="likert-option"><input type="radio" name="q4_likert" value="3"><div class="likert-dot">3</div></label>
+          <label class="likert-option"><input type="radio" name="q4_likert" value="4"><div class="likert-dot">4</div></label>
+          <label class="likert-option"><input type="radio" name="q4_likert" value="5"><div class="likert-dot">5</div></label>
+        </div>
+        <div class="likert-ends"><span>全く感じない</span><span>強く感じる</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>あなたの「失敗」に眠るものは？</h3>
+      <div class="radio-grid" style="margin-top: 12px;">
+        <label class="radio-option"><input type="radio" name="q4_category" value="technology_transfer"><span>別分野への技術転用</span></label>
+        <label class="radio-option"><input type="radio" name="q4_category" value="material_discovery"><span>素材・材料の発見</span></label>
+        <label class="radio-option"><input type="radio" name="q4_category" value="process_knowledge"><span>プロセスノウハウ</span></label>
+        <label class="radio-option"><input type="radio" name="q4_category" value="failure_analysis"><span>故障解析・原因究明力</span></label>
+        <label class="radio-option"><input type="radio" name="q4_category" value="resilience"><span>逆境から立ち直る組織力</span></label>
+        <label class="radio-option"><input type="radio" name="q4_category" value="unexpected_use"><span>予想外の用途の発見</span></label>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>あなたの「失敗」に眠る宝を教えてください</h3>
+      <textarea name="q4_text" placeholder="過去の"失敗"プロジェクトで、実は世界に役立つかもしれない技術や知見はありますか？"></textarea>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn btn-secondary" onclick="navigateTo('q3')">戻る</button>
+      <button class="btn btn-primary" onclick="navigateTo('q5')">次の問いへ</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SECTION 3: CORE QUESTION 5 ===== -->
+<div class="section" id="section-q5">
+  <div class="container">
+    <div class="question-header">
+      <span class="question-number">問い 5 / 5</span>
+      <h1>「次世代」への責任</h1>
+    </div>
+
+    <div class="context-box">
+      <p>10年後、若いエンジニアが「日本のエンジニアでよかった」と思える未来。</p>
+      <div class="examples">それは今日のあなたの行動から始まります。</div>
+    </div>
+
+    <div class="card">
+      <h3>10年後の若手技術者に「日本のエンジニアでよかった」と思ってもらうために、今日からできることは何ですか？</h3>
+      <br>
+      <div class="likert-group">
+        <div class="likert-label">次世代のために行動したいと感じますか？</div>
+        <div class="likert-scale">
+          <label class="likert-option"><input type="radio" name="q5_likert" value="1"><div class="likert-dot">1</div></label>
+          <label class="likert-option"><input type="radio" name="q5_likert" value="2"><div class="likert-dot">2</div></label>
+          <label class="likert-option"><input type="radio" name="q5_likert" value="3"><div class="likert-dot">3</div></label>
+          <label class="likert-option"><input type="radio" name="q5_likert" value="4"><div class="likert-dot">4</div></label>
+          <label class="likert-option"><input type="radio" name="q5_likert" value="5"><div class="likert-dot">5</div></label>
+        </div>
+        <div class="likert-ends"><span>全く感じない</span><span>強く感じる</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>あなたが次世代に届けたいものは？</h3>
+      <div class="radio-grid" style="margin-top: 12px;">
+        <label class="radio-option"><input type="radio" name="q5_category" value="education_mentoring"><span>教育・メンタリング</span></label>
+        <label class="radio-option"><input type="radio" name="q5_category" value="knowledge_sharing"><span>技術知見の共有・文書化</span></label>
+        <label class="radio-option"><input type="radio" name="q5_category" value="culture_preservation"><span>ものづくり文化の継承</span></label>
+        <label class="radio-option"><input type="radio" name="q5_category" value="global_collaboration"><span>国際協業の推進</span></label>
+        <label class="radio-option"><input type="radio" name="q5_category" value="new_technology"><span>新技術への挑戦</span></label>
+        <label class="radio-option"><input type="radio" name="q5_category" value="work_environment"><span>働く環境の改善</span></label>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>次世代への想いを聞かせてください</h3>
+      <textarea name="q5_text" placeholder="10年後のエンジニアが誇りを持てるように、今日あなたができることは何ですか？"></textarea>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn btn-secondary" onclick="navigateTo('q4')">戻る</button>
+      <button class="btn btn-primary" onclick="navigateTo('after')">振り返りへ</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SECTION 4: AFTER AWARENESS ===== -->
+<div class="section" id="section-after">
+  <div class="container">
+    <div class="question-header">
+      <span class="question-number">STEP 4 / 5</span>
+      <h1>5つの問いを振り返って</h1>
+      <p>今のあなたの気持ちはどうですか？</p>
+    </div>
+
+    <div class="context-box">
+      <p>「問いに答える」という行為だけで、多くの方が自分の中の誇りに気づいています。改めて、率直に答えてください。</p>
+    </div>
+
+    <div class="card">
+      <div class="likert-group">
+        <div class="likert-label">日本のエンジニアであることに誇りを感じていますか？</div>
+        <div class="likert-scale">
+          <label class="likert-option"><input type="radio" name="after_pride" value="1"><div class="likert-dot">1</div></label>
+          <label class="likert-option"><input type="radio" name="after_pride" value="2"><div class="likert-dot">2</div></label>
+          <label class="likert-option"><input type="radio" name="after_pride" value="3"><div class="likert-dot">3</div></label>
+          <label class="likert-option"><input type="radio" name="after_pride" value="4"><div class="likert-dot">4</div></label>
+          <label class="likert-option"><input type="radio" name="after_pride" value="5"><div class="likert-dot">5</div></label>
+        </div>
+        <div class="likert-ends"><span>全く感じない</span><span>強く感じる</span></div>
+      </div>
+
+      <div class="likert-group">
+        <div class="likert-label">自分の技術力は世界に通用すると思いますか？</div>
+        <div class="likert-scale">
+          <label class="likert-option"><input type="radio" name="after_confidence" value="1"><div class="likert-dot">1</div></label>
+          <label class="likert-option"><input type="radio" name="after_confidence" value="2"><div class="likert-dot">2</div></label>
+          <label class="likert-option"><input type="radio" name="after_confidence" value="3"><div class="likert-dot">3</div></label>
+          <label class="likert-option"><input type="radio" name="after_confidence" value="4"><div class="likert-dot">4</div></label>
+          <label class="likert-option"><input type="radio" name="after_confidence" value="5"><div class="likert-dot">5</div></label>
+        </div>
+        <div class="likert-ends"><span>全く思わない</span><span>強く思う</span></div>
+      </div>
+
+      <div class="likert-group">
+        <div class="likert-label">日本のエンジニアリングにはイノベーションを起こす力があると思いますか？</div>
+        <div class="likert-scale">
+          <label class="likert-option"><input type="radio" name="after_innovation" value="1"><div class="likert-dot">1</div></label>
+          <label class="likert-option"><input type="radio" name="after_innovation" value="2"><div class="likert-dot">2</div></label>
+          <label class="likert-option"><input type="radio" name="after_innovation" value="3"><div class="likert-dot">3</div></label>
+          <label class="likert-option"><input type="radio" name="after_innovation" value="4"><div class="likert-dot">4</div></label>
+          <label class="likert-option"><input type="radio" name="after_innovation" value="5"><div class="likert-dot">5</div></label>
+        </div>
+        <div class="likert-ends"><span>全く思わない</span><span>強く思う</span></div>
+      </div>
+
+      <div class="likert-group">
+        <div class="likert-label">日本のエンジニアリングは国際的に競争力があると感じますか？</div>
+        <div class="likert-scale">
+          <label class="likert-option"><input type="radio" name="after_globalCompetitiveness" value="1"><div class="likert-dot">1</div></label>
+          <label class="likert-option"><input type="radio" name="after_globalCompetitiveness" value="2"><div class="likert-dot">2</div></label>
+          <label class="likert-option"><input type="radio" name="after_globalCompetitiveness" value="3"><div class="likert-dot">3</div></label>
+          <label class="likert-option"><input type="radio" name="after_globalCompetitiveness" value="4"><div class="likert-dot">4</div></label>
+          <label class="likert-option"><input type="radio" name="after_globalCompetitiveness" value="5"><div class="likert-dot">5</div></label>
+        </div>
+        <div class="likert-ends"><span>全く感じない</span><span>強く感じる</span></div>
+      </div>
+
+      <div class="likert-group">
+        <div class="likert-label">日本のエンジニアリングの将来は明るいと思いますか？</div>
+        <div class="likert-scale">
+          <label class="likert-option"><input type="radio" name="after_futureOptimism" value="1"><div class="likert-dot">1</div></label>
+          <label class="likert-option"><input type="radio" name="after_futureOptimism" value="2"><div class="likert-dot">2</div></label>
+          <label class="likert-option"><input type="radio" name="after_futureOptimism" value="3"><div class="likert-dot">3</div></label>
+          <label class="likert-option"><input type="radio" name="after_futureOptimism" value="4"><div class="likert-dot">4</div></label>
+          <label class="likert-option"><input type="radio" name="after_futureOptimism" value="5"><div class="likert-dot">5</div></label>
+        </div>
+        <div class="likert-ends"><span>全く思わない</span><span>強く思う</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>あなたの「行動宣言」</h3>
+      <p>この調査を通じて、明日から始めたいことを一つ宣言してください。</p>
+      <textarea name="action_declaration" placeholder="例: 週1回、若手メンバーに技術的な知見を共有する時間を作る" style="min-height: 80px;"></textarea>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn btn-secondary" onclick="navigateTo('q5')">戻る</button>
+      <button class="btn btn-primary" onclick="submitSurvey()">結果を見る &#10022;</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SECTION 5: DASHBOARD ===== -->
+<div class="section" id="section-dashboard">
+  <div class="container">
+    <div class="question-header">
+      <span class="question-number">STEP 5 / 5</span>
+      <h1>あなたの結果</h1>
+    </div>
+
+    <div class="tab-nav">
+      <button class="tab-btn active" onclick="switchTab('personal')">個人結果</button>
+      <button class="tab-btn" onclick="switchTab('collective')">集合分析</button>
+      <button class="tab-btn" onclick="switchTab('cluster')">クラスター</button>
+      <button class="tab-btn" onclick="switchTab('export')">CSV出力</button>
+    </div>
+
+    <!-- Personal Tab -->
+    <div class="tab-content active" id="tab-personal">
+      <div class="type-badge" id="typeBadge">
+        <span class="type-icon" id="typeIcon"></span>
+        <div class="type-name" id="typeName"></div>
+        <div class="type-subtitle" id="typeSubtitle"></div>
+        <div class="type-description" id="typeDescription"></div>
+      </div>
+
+      <div class="card">
+        <h3>あなたの強みプロファイル</h3>
+        <div class="chart-container"><canvas id="radarChart"></canvas></div>
+      </div>
+
+      <div class="card">
+        <h3>意識の変化 (Before → After)</h3>
+        <div id="shiftBars"></div>
+        <div class="chart-container" style="height: 280px;"><canvas id="shiftChart"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Collective Tab -->
+    <div class="tab-content" id="tab-collective">
+      <div class="stat-grid" id="collectiveStats"></div>
+
+      <div class="card">
+        <h3>回答分布</h3>
+        <div class="chart-container"><canvas id="distributionChart"></canvas></div>
+      </div>
+
+      <div class="card">
+        <h3>カテゴリ選択の傾向</h3>
+        <div class="chart-container"><canvas id="categoryChart"></canvas></div>
+      </div>
+
+      <div class="card">
+        <h3>属性別クロス分析: 年代 x 誇り</h3>
+        <div class="chart-container"><canvas id="crossChart"></canvas></div>
+      </div>
+
+      <div class="card">
+        <h3>自由記述のキーワード</h3>
+        <div class="word-cloud" id="wordCloud"></div>
+      </div>
+    </div>
+
+    <!-- Cluster Tab -->
+    <div class="tab-content" id="tab-cluster">
+      <div class="card">
+        <h3>エンジニアタイプ分布</h3>
+        <div class="chart-container"><canvas id="clusterScatter"></canvas></div>
+        <div class="cluster-legend" id="clusterLegend"></div>
+      </div>
+
+      <div class="card">
+        <h3>クラスター特性比較</h3>
+        <div class="chart-container"><canvas id="clusterRadar"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Export Tab -->
+    <div class="tab-content" id="tab-export">
+      <div class="card" style="text-align: center;">
+        <h3>データエクスポート</h3>
+        <p>全回答データをCSVファイルとしてダウンロードできます。<br>Excel等で詳細な分析が可能です。</p>
+        <div style="margin-top: 24px;">
+          <button class="btn btn-primary" onclick="exportCSV()">CSVダウンロード</button>
+        </div>
+        <p class="small-text" style="margin-top: 16px;" id="exportCount"></p>
+      </div>
+      <div class="card">
+        <h3>デモデータ</h3>
+        <p>分析機能をテストするためにデモデータを投入できます。</p>
+        <div style="margin-top: 16px; display: flex; gap: 12px; justify-content: center;">
+          <button class="btn btn-secondary" onclick="generateDemoData(30)">30件追加</button>
+          <button class="btn btn-secondary" onclick="generateDemoData(100)">100件追加</button>
+          <button class="btn btn-secondary" style="border-color: var(--danger); color: var(--danger);" onclick="clearAllData()">全削除</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="btn-group" style="margin-top: 40px;">
+      <button class="btn btn-secondary" onclick="navigateTo('landing')">トップに戻る</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== Constants =====
+const STORAGE_KEY = 'engineer_survey_responses';
+const AWARENESS_DIMS = ['pride', 'confidence', 'innovation', 'globalCompetitiveness', 'futureOptimism'];
+const AWARENESS_LABELS = ['誇り', '自信', '革新力', '国際競争力', '将来期待'];
+const Q_KEYS = ['q1', 'q2', 'q3', 'q4', 'q5'];
+const Q_NAMES = ['atarimae', 'kaizen', 'genba', 'shippai', 'jisedai'];
+const Q_LABELS = ['当たり前の力', '改善の力', '現場の知恵', '失敗転換力', '次世代責任'];
+
+const SECTION_ORDER = ['landing', 'attributes', 'before', 'q1', 'q2', 'q3', 'q4', 'q5', 'after', 'dashboard'];
+const PROGRESS_MAP = {
+  attributes: { pct: 10, label: 'STEP 1/5 - 属性情報' },
+  before: { pct: 20, label: 'STEP 2/5 - 現在の意識' },
+  q1: { pct: 30, label: '問い 1/5' },
+  q2: { pct: 40, label: '問い 2/5' },
+  q3: { pct: 50, label: '問い 3/5' },
+  q4: { pct: 60, label: '問い 4/5' },
+  q5: { pct: 70, label: '問い 5/5' },
+  after: { pct: 85, label: 'STEP 4/5 - 振り返り' },
+  dashboard: { pct: 100, label: '結果' }
+};
+
+const ENGINEER_TYPES = [
+  { name: '潜在イノベーター', subtitle: '自覚なき革新の種を持つ者', icon: '💡',
+    description: 'あなたの中には、まだ自覚していないイノベーションの種が眠っています。日常の「当たり前」の中に、世界を変える可能性があります。',
+    condition: d => d.beforeMean < 3 && d.coreMean >= 3.5 },
+  { name: '品質の守護者', subtitle: '世界が羨む基準を当たり前にする者', icon: '🛡️',
+    description: 'あなたの品質意識は世界標準を遥かに超えています。その「こだわり」が日本エンジニアリングの核心です。',
+    condition: d => d.q1 >= 4 && d.q2 >= 4 },
+  { name: '次世代リーダー', subtitle: '未来のエンジニアリングを創る者', icon: '🌟',
+    description: 'あなたは次世代への責任感が強く、未来を変える力を持っています。その志が日本の技術を次のステージへ導きます。',
+    condition: d => d.q5 >= 4 && d.totalShift >= 4 },
+  { name: '覚醒エンジニア', subtitle: '問いを通じて目覚めた者', icon: '🔥',
+    description: 'この調査を通じて、あなたの中に大きな気づきが生まれました。その変化こそが、日本エンジニアリングの未来を照らす光です。',
+    condition: d => d.totalShift >= 6 }
+];
+
+const CLUSTER_COLORS = ['#d4a853', '#4a9eff', '#4ecdc4', '#ff6b9d'];
+
+// ===== State =====
+let chartInstances = {};
+
+// ===== Navigation =====
+function navigateTo(sectionId) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('section-' + sectionId).classList.add('active');
+
+  const pb = document.getElementById('progressBar');
+  if (sectionId === 'landing') {
+    pb.classList.remove('visible');
+  } else {
+    pb.classList.add('visible');
+    const info = PROGRESS_MAP[sectionId];
+    if (info) {
+      document.getElementById('progressFill').style.width = info.pct + '%';
+      document.getElementById('progressLabel').textContent = info.label;
+    }
+  }
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function switchTab(tabId) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  document.querySelector(`[onclick="switchTab('${tabId}')"]`).classList.add('active');
+  document.getElementById('tab-' + tabId).classList.add('active');
+}
+
+// ===== Data Collection =====
+function getRadioValue(name) {
+  const el = document.querySelector(`input[name="${name}"]:checked`);
+  return el ? parseInt(el.value) : null;
+}
+function getRadioStringValue(name) {
+  const el = document.querySelector(`input[name="${name}"]:checked`);
+  return el ? el.value : '';
+}
+function getTextValue(name) {
+  const el = document.querySelector(`textarea[name="${name}"]`);
+  return el ? el.value.trim() : '';
+}
+
+function collectResponse() {
+  const before = {};
+  const after = {};
+  AWARENESS_DIMS.forEach(dim => {
+    before[dim] = getRadioValue('before_' + dim) || 3;
+    after[dim] = getRadioValue('after_' + dim) || 3;
+  });
+
+  const coreQuestions = {};
+  Q_KEYS.forEach((qk, i) => {
+    coreQuestions[qk + '_' + Q_NAMES[i]] = {
+      likert: getRadioValue(qk + '_likert') || 3,
+      category: getRadioStringValue(qk + '_category'),
+      freeText: getTextValue(qk + '_text')
+    };
+  });
+
+  const shifts = {};
+  let totalShift = 0;
+  AWARENESS_DIMS.forEach(dim => {
+    shifts[dim] = after[dim] - before[dim];
+    totalShift += shifts[dim];
+  });
+
+  const strengthProfile = Q_KEYS.map((qk, i) => coreQuestions[qk + '_' + Q_NAMES[i]].likert);
+
+  return {
+    id: 'resp_' + Date.now(),
+    timestamp: new Date().toISOString(),
+    attributes: {
+      ageGroup: getRadioStringValue('ageGroup'),
+      yearsOfExperience: getRadioStringValue('yearsOfExperience'),
+      technicalField: getRadioStringValue('technicalField'),
+      companySize: getRadioStringValue('companySize'),
+      roleLevel: getRadioStringValue('roleLevel')
+    },
+    beforeAwareness: before,
+    afterAwareness: after,
+    coreQuestions,
+    actionDeclaration: getTextValue('action_declaration'),
+    computed: {
+      awarenessShift: shifts,
+      totalShift,
+      strengthProfile,
+      clusterInput: [...Object.values(before), ...strengthProfile]
+    }
+  };
+}
+
+// ===== Storage =====
+function getResponses() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+  catch { return []; }
+}
+function saveResponses(responses) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(responses));
+}
+
+// ===== Submit =====
+function submitSurvey() {
+  const response = collectResponse();
+  const responses = getResponses();
+  responses.push(response);
+  saveResponses(responses);
+  navigateTo('dashboard');
+  renderDashboard(response, responses);
+}
+
+// ===== Engineer Type =====
+function assignType(response) {
+  const before = Object.values(response.beforeAwareness);
+  const core = response.computed.strengthProfile;
+  const d = {
+    beforeMean: before.reduce((a, b) => a + b, 0) / before.length,
+    coreMean: core.reduce((a, b) => a + b, 0) / core.length,
+    q1: core[0], q2: core[1], q3: core[2], q4: core[3], q5: core[4],
+    totalShift: response.computed.totalShift
+  };
+  for (const type of ENGINEER_TYPES) {
+    if (type.condition(d)) return type;
+  }
+  return ENGINEER_TYPES[0];
+}
+
+// ===== K-Means Clustering =====
+function euclidean(a, b) {
+  return Math.sqrt(a.reduce((s, v, i) => s + (v - b[i]) ** 2, 0));
+}
+
+function kMeans(data, k, maxIter = 50) {
+  if (data.length < k) return { centroids: [], assignments: data.map((_, i) => i % k) };
+  // k-means++ init
+  const centroids = [data[Math.floor(Math.random() * data.length)].slice()];
+  while (centroids.length < k) {
+    const dists = data.map(p => Math.min(...centroids.map(c => euclidean(p, c))));
+    const total = dists.reduce((a, b) => a + b, 0);
+    let r = Math.random() * total, acc = 0;
+    for (let i = 0; i < data.length; i++) {
+      acc += dists[i];
+      if (acc >= r) { centroids.push(data[i].slice()); break; }
+    }
+  }
+
+  let assignments = new Array(data.length).fill(0);
+  for (let iter = 0; iter < maxIter; iter++) {
+    const newAssignments = data.map(p => {
+      let minD = Infinity, minI = 0;
+      centroids.forEach((c, i) => { const d = euclidean(p, c); if (d < minD) { minD = d; minI = i; } });
+      return minI;
+    });
+    // update centroids
+    for (let ci = 0; ci < k; ci++) {
+      const members = data.filter((_, i) => newAssignments[i] === ci);
+      if (members.length > 0) {
+        centroids[ci] = centroids[ci].map((_, di) =>
+          members.reduce((s, m) => s + m[di], 0) / members.length
+        );
+      }
+    }
+    if (newAssignments.every((a, i) => a === assignments[i])) break;
+    assignments = newAssignments;
+  }
+  return { centroids, assignments };
+}
+
+// ===== Text Analysis =====
+function analyzeTexts(texts) {
+  const stopWords = new Set(['の','に','は','を','た','が','で','て','と','し','れ','さ','ある','いる','する','こと','これ','それ','もの','ない','よう','なる','ため','から','まで','です','ます','だと','という','として','など','また','その','この','どの','あの','られ','って','けど','から','ので','だった','している','された','いう','なり','ながら','おり','ところ','とき','あり','ほど','ほう','もう','まだ','すべて','すべき','もっと','ただ','かなり','それぞれ']);
+  const counts = {};
+  texts.forEach(t => {
+    const katakana = t.match(/[ァ-ヶー]{2,}/g) || [];
+    const kanji = t.match(/[\u4e00-\u9fff]{2,}/g) || [];
+    const alpha = t.match(/[a-zA-Z]{3,}/gi) || [];
+    [...katakana, ...kanji, ...alpha].forEach(w => {
+      if (!stopWords.has(w) && w.length >= 2) counts[w] = (counts[w] || 0) + 1;
+    });
+  });
+  return Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 30);
+}
+
+// ===== Dashboard Rendering =====
+function destroyChart(id) {
+  if (chartInstances[id]) { chartInstances[id].destroy(); delete chartInstances[id]; }
+}
+
+function renderDashboard(currentResponse, allResponses) {
+  // Type badge
+  const type = assignType(currentResponse);
+  document.getElementById('typeIcon').textContent = type.icon;
+  document.getElementById('typeName').textContent = type.name;
+  document.getElementById('typeSubtitle').textContent = type.subtitle;
+  document.getElementById('typeDescription').textContent = type.description;
+
+  // Radar chart
+  const avgProfile = Q_KEYS.map((_, qi) => {
+    const vals = allResponses.map(r => r.computed.strengthProfile[qi]);
+    return vals.reduce((a, b) => a + b, 0) / vals.length;
+  });
+
+  destroyChart('radarChart');
+  chartInstances['radarChart'] = new Chart(document.getElementById('radarChart'), {
+    type: 'radar',
+    data: {
+      labels: Q_LABELS,
+      datasets: [{
+        label: 'あなた',
+        data: currentResponse.computed.strengthProfile,
+        backgroundColor: 'rgba(212,168,83,0.2)',
+        borderColor: '#d4a853',
+        borderWidth: 2,
+        pointBackgroundColor: '#d4a853'
+      }, {
+        label: '全体平均',
+        data: avgProfile,
+        backgroundColor: 'rgba(74,158,255,0.1)',
+        borderColor: '#4a9eff',
+        borderWidth: 1,
+        borderDash: [5, 5],
+        pointBackgroundColor: '#4a9eff'
+      }]
+    },
+    options: {
+      scales: { r: { min: 0, max: 5, ticks: { stepSize: 1, color: '#8888aa', backdropColor: 'transparent' }, grid: { color: 'rgba(255,255,255,0.1)' }, pointLabels: { color: '#e8e8f0', font: { size: 13 } } } },
+      plugins: { legend: { labels: { color: '#e8e8f0' } } }
+    }
+  });
+
+  // Shift bars
+  const shiftBarsEl = document.getElementById('shiftBars');
+  shiftBarsEl.innerHTML = AWARENESS_DIMS.map((dim, i) => {
+    const bv = currentResponse.beforeAwareness[dim];
+    const av = currentResponse.afterAwareness[dim];
+    const diff = av - bv;
+    const sign = diff > 0 ? '+' : '';
+    return `<div class="shift-bar-container">
+      <div class="shift-bar-label"><span class="label-name">${AWARENESS_LABELS[i]}</span><span class="label-value">${sign}${diff}</span></div>
+      <div class="shift-bar"><div class="shift-bar-before" style="width:${bv * 20}%"></div><div class="shift-bar-after" style="width:${av * 20}%"></div></div>
+    </div>`;
+  }).join('');
+
+  // Shift chart
+  destroyChart('shiftChart');
+  chartInstances['shiftChart'] = new Chart(document.getElementById('shiftChart'), {
+    type: 'bar',
+    data: {
+      labels: AWARENESS_LABELS,
+      datasets: [
+        { label: 'Before', data: AWARENESS_DIMS.map(d => currentResponse.beforeAwareness[d]), backgroundColor: 'rgba(136,136,170,0.6)', borderColor: '#8888aa', borderWidth: 1 },
+        { label: 'After', data: AWARENESS_DIMS.map(d => currentResponse.afterAwareness[d]), backgroundColor: 'rgba(212,168,83,0.6)', borderColor: '#d4a853', borderWidth: 1 }
+      ]
+    },
+    options: {
+      indexAxis: 'y',
+      scales: { x: { min: 0, max: 5, ticks: { color: '#8888aa' }, grid: { color: 'rgba(255,255,255,0.05)' } }, y: { ticks: { color: '#e8e8f0' } } },
+      plugins: { legend: { labels: { color: '#e8e8f0' } } }
+    }
+  });
+
+  // Collective stats
+  const n = allResponses.length;
+  const avgShift = allResponses.reduce((s, r) => s + r.computed.totalShift, 0) / n;
+  const avgCoreMean = allResponses.reduce((s, r) => s + r.computed.strengthProfile.reduce((a, b) => a + b, 0) / 5, 0) / n;
+  document.getElementById('collectiveStats').innerHTML = `
+    <div class="stat-card"><div class="stat-value">${n}</div><div class="stat-label">回答者数</div></div>
+    <div class="stat-card"><div class="stat-value">${avgShift.toFixed(1)}</div><div class="stat-label">平均意識変化</div></div>
+    <div class="stat-card"><div class="stat-value">${avgCoreMean.toFixed(1)}</div><div class="stat-label">平均共感度</div></div>
+    <div class="stat-card"><div class="stat-value">${(allResponses.filter(r => r.computed.totalShift > 0).length / n * 100).toFixed(0)}%</div><div class="stat-label">意識上昇率</div></div>
+  `;
+
+  // Distribution chart
+  destroyChart('distributionChart');
+  const distData = Q_LABELS.map((_, qi) => {
+    return [1, 2, 3, 4, 5].map(v =>
+      allResponses.filter(r => r.computed.strengthProfile[qi] === v).length
+    );
+  });
+  chartInstances['distributionChart'] = new Chart(document.getElementById('distributionChart'), {
+    type: 'bar',
+    data: {
+      labels: Q_LABELS,
+      datasets: [1, 2, 3, 4, 5].map((v, vi) => ({
+        label: v + '点',
+        data: distData.map(d => d[vi]),
+        backgroundColor: ['#ff6b6b88', '#ffa50088', '#ffd70088', '#90ee9088', '#4a9eff88'][vi],
+        borderWidth: 0
+      }))
+    },
+    options: {
+      scales: { x: { stacked: true, ticks: { color: '#e8e8f0' }, grid: { display: false } }, y: { stacked: true, ticks: { color: '#8888aa' }, grid: { color: 'rgba(255,255,255,0.05)' } } },
+      plugins: { legend: { labels: { color: '#e8e8f0' } } }
+    }
+  });
+
+  // Category chart
+  destroyChart('categoryChart');
+  const catLabelsMap = {
+    quality_control: '品質管理', documentation: 'ドキュメント', teamwork: 'チームワーク',
+    deadline: '納期遵守', safety: '安全基準', customer_care: '顧客対応',
+    process_improvement: 'プロセス改善', cost_reduction: 'コスト削減', automation: '自動化',
+    communication: 'コミュニケーション', tool_development: 'ツール開発', standard_upgrade: '標準引上げ',
+    product_innovation: '製品創造', service_creation: 'サービス', cross_industry: '異業種応用',
+    social_problem: '社会課題解決', efficiency_tool: '効率化', quality_of_life: '生活向上',
+    technology_transfer: '技術転用', material_discovery: '素材発見', process_knowledge: 'プロセス知識',
+    failure_analysis: '故障解析', resilience: '組織力', unexpected_use: '予想外用途',
+    education_mentoring: '教育', knowledge_sharing: '知識共有', culture_preservation: '文化継承',
+    global_collaboration: '国際協業', new_technology: '新技術挑戦', work_environment: '環境改善'
+  };
+  const allCats = {};
+  allResponses.forEach(r => {
+    Object.values(r.coreQuestions).forEach(q => {
+      if (q.category) allCats[q.category] = (allCats[q.category] || 0) + 1;
+    });
+  });
+  const sortedCats = Object.entries(allCats).sort((a, b) => b[1] - a[1]).slice(0, 10);
+  chartInstances['categoryChart'] = new Chart(document.getElementById('categoryChart'), {
+    type: 'doughnut',
+    data: {
+      labels: sortedCats.map(c => catLabelsMap[c[0]] || c[0]),
+      datasets: [{ data: sortedCats.map(c => c[1]), backgroundColor: ['#d4a853', '#4a9eff', '#4ecdc4', '#ff6b9d', '#a78bfa', '#f59e0b', '#10b981', '#ef4444', '#8b5cf6', '#06b6d4'] }]
+    },
+    options: {
+      plugins: { legend: { position: 'right', labels: { color: '#e8e8f0', font: { size: 12 } } } }
+    }
+  });
+
+  // Cross analysis: age x pride
+  destroyChart('crossChart');
+  const ageGroups = ['20-29', '30-39', '40-49', '50-59', '60+'];
+  const ageLabels = ['20代', '30代', '40代', '50代', '60代+'];
+  const agePrideBefore = ageGroups.map(ag => {
+    const group = allResponses.filter(r => r.attributes.ageGroup === ag);
+    return group.length ? group.reduce((s, r) => s + r.beforeAwareness.pride, 0) / group.length : 0;
+  });
+  const agePrideAfter = ageGroups.map(ag => {
+    const group = allResponses.filter(r => r.attributes.ageGroup === ag);
+    return group.length ? group.reduce((s, r) => s + r.afterAwareness.pride, 0) / group.length : 0;
+  });
+  chartInstances['crossChart'] = new Chart(document.getElementById('crossChart'), {
+    type: 'bar',
+    data: {
+      labels: ageLabels,
+      datasets: [
+        { label: 'Before', data: agePrideBefore, backgroundColor: 'rgba(136,136,170,0.6)' },
+        { label: 'After', data: agePrideAfter, backgroundColor: 'rgba(212,168,83,0.6)' }
+      ]
+    },
+    options: {
+      scales: { y: { min: 0, max: 5, ticks: { color: '#8888aa' }, grid: { color: 'rgba(255,255,255,0.05)' } }, x: { ticks: { color: '#e8e8f0' }, grid: { display: false } } },
+      plugins: { legend: { labels: { color: '#e8e8f0' } } }
+    }
+  });
+
+  // Word cloud
+  const allTexts = allResponses.flatMap(r =>
+    Object.values(r.coreQuestions).map(q => q.freeText).concat([r.actionDeclaration])
+  ).filter(t => t.length > 0);
+  const words = analyzeTexts(allTexts);
+  const wcEl = document.getElementById('wordCloud');
+  if (words.length > 0) {
+    const maxC = words[0][1];
+    wcEl.innerHTML = words.map(([w, c]) => {
+      const sz = 14 + (c / maxC) * 32;
+      const op = 0.5 + (c / maxC) * 0.5;
+      const col = c > maxC * 0.6 ? '#d4a853' : '#4a9eff';
+      return `<span style="font-size:${sz}px;opacity:${op};color:${col};margin:4px 8px;display:inline-block">${w}</span>`;
+    }).join('');
+  } else {
+    wcEl.innerHTML = '<span style="color:var(--text-secondary)">自由記述データがまだありません</span>';
+  }
+
+  // Cluster analysis
+  renderCluster(allResponses);
+
+  // Export info
+  document.getElementById('exportCount').textContent = `現在 ${n} 件の回答データがあります`;
+}
+
+function renderCluster(allResponses) {
+  if (allResponses.length < 4) {
+    document.getElementById('clusterLegend').innerHTML = '<p style="color:var(--text-secondary);text-align:center;grid-column:1/-1;">回答が4件以上集まるとクラスター分析を表示します</p>';
+    return;
+  }
+
+  const data = allResponses.map(r => r.computed.clusterInput);
+  const k = Math.min(4, allResponses.length);
+
+  // Run k-means 5 times and pick best
+  let bestResult = null, bestInertia = Infinity;
+  for (let trial = 0; trial < 5; trial++) {
+    const result = kMeans(data, k);
+    let inertia = 0;
+    data.forEach((p, i) => { inertia += euclidean(p, result.centroids[result.assignments[i]]) ** 2; });
+    if (inertia < bestInertia) { bestInertia = inertia; bestResult = result; }
+  }
+
+  // Simple 2D projection (top 2 variance dimensions)
+  const dims = data[0].length;
+  const means = Array(dims).fill(0);
+  data.forEach(p => p.forEach((v, i) => means[i] += v));
+  means.forEach((_, i) => means[i] /= data.length);
+  const variances = Array(dims).fill(0);
+  data.forEach(p => p.forEach((v, i) => variances[i] += (v - means[i]) ** 2));
+  const topDims = variances.map((v, i) => ({ v, i })).sort((a, b) => b.v - a.v);
+  const d1 = topDims[0].i, d2 = topDims[1].i;
+
+  const scatterData = data.map((p, i) => ({
+    x: p[d1] + (Math.random() - 0.5) * 0.3,
+    y: p[d2] + (Math.random() - 0.5) * 0.3,
+    cluster: bestResult.assignments[i]
+  }));
+
+  destroyChart('clusterScatter');
+  const datasets = [];
+  const typeNames = ENGINEER_TYPES.map(t => t.name);
+  for (let ci = 0; ci < k; ci++) {
+    datasets.push({
+      label: typeNames[ci] || `グループ${ci + 1}`,
+      data: scatterData.filter(d => d.cluster === ci).map(d => ({ x: d.x, y: d.y })),
+      backgroundColor: CLUSTER_COLORS[ci] + '99',
+      borderColor: CLUSTER_COLORS[ci],
+      pointRadius: 6,
+      pointHoverRadius: 8
+    });
+  }
+  chartInstances['clusterScatter'] = new Chart(document.getElementById('clusterScatter'), {
+    type: 'scatter',
+    data: { datasets },
+    options: {
+      scales: {
+        x: { title: { display: true, text: '第1主成分', color: '#8888aa' }, ticks: { color: '#8888aa' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+        y: { title: { display: true, text: '第2主成分', color: '#8888aa' }, ticks: { color: '#8888aa' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+      },
+      plugins: { legend: { labels: { color: '#e8e8f0' } } }
+    }
+  });
+
+  // Legend
+  const legendEl = document.getElementById('clusterLegend');
+  const clusterCounts = Array(k).fill(0);
+  bestResult.assignments.forEach(a => clusterCounts[a]++);
+  legendEl.innerHTML = Array.from({ length: k }, (_, ci) =>
+    `<div class="cluster-item">
+      <div class="cluster-dot" style="background:${CLUSTER_COLORS[ci]}"></div>
+      <div class="cluster-info">
+        <div class="cluster-name">${typeNames[ci] || 'グループ' + (ci + 1)}</div>
+        <div class="cluster-count">${clusterCounts[ci]}名 (${(clusterCounts[ci] / allResponses.length * 100).toFixed(0)}%)</div>
+      </div>
+    </div>`
+  ).join('');
+
+  // Cluster radar comparison
+  destroyChart('clusterRadar');
+  const clusterProfiles = Array.from({ length: k }, (_, ci) => {
+    const members = allResponses.filter((_, i) => bestResult.assignments[i] === ci);
+    if (members.length === 0) return [0, 0, 0, 0, 0];
+    return Q_KEYS.map((_, qi) => members.reduce((s, m) => s + m.computed.strengthProfile[qi], 0) / members.length);
+  });
+  chartInstances['clusterRadar'] = new Chart(document.getElementById('clusterRadar'), {
+    type: 'radar',
+    data: {
+      labels: Q_LABELS,
+      datasets: clusterProfiles.map((profile, ci) => ({
+        label: typeNames[ci] || `グループ${ci + 1}`,
+        data: profile,
+        backgroundColor: CLUSTER_COLORS[ci] + '22',
+        borderColor: CLUSTER_COLORS[ci],
+        borderWidth: 2,
+        pointBackgroundColor: CLUSTER_COLORS[ci]
+      }))
+    },
+    options: {
+      scales: { r: { min: 0, max: 5, ticks: { stepSize: 1, color: '#8888aa', backdropColor: 'transparent' }, grid: { color: 'rgba(255,255,255,0.1)' }, pointLabels: { color: '#e8e8f0', font: { size: 12 } } } },
+      plugins: { legend: { labels: { color: '#e8e8f0' } } }
+    }
+  });
+}
+
+// ===== CSV Export =====
+function exportCSV() {
+  const responses = getResponses();
+  if (responses.length === 0) { alert('エクスポートするデータがありません'); return; }
+
+  const headers = [
+    'ID', 'タイムスタンプ', '年齢層', 'エンジニア歴', '技術分野', '企業規模', '役職',
+    'B_誇り', 'B_自信', 'B_革新力', 'B_国際競争力', 'B_将来期待',
+    'Q1_共感度', 'Q1_カテゴリ', 'Q1_自由記述',
+    'Q2_共感度', 'Q2_カテゴリ', 'Q2_自由記述',
+    'Q3_共感度', 'Q3_カテゴリ', 'Q3_自由記述',
+    'Q4_共感度', 'Q4_カテゴリ', 'Q4_自由記述',
+    'Q5_共感度', 'Q5_カテゴリ', 'Q5_自由記述',
+    'A_誇り', 'A_自信', 'A_革新力', 'A_国際競争力', 'A_将来期待',
+    '行動宣言', '意識変化合計', 'エンジニアタイプ'
+  ];
+
+  const esc = v => `"${String(v).replace(/"/g, '""')}"`;
+  const rows = responses.map(r => {
+    const qData = Q_KEYS.flatMap((qk, i) => {
+      const q = r.coreQuestions[qk + '_' + Q_NAMES[i]] || { likert: '', category: '', freeText: '' };
+      return [q.likert, q.category, esc(q.freeText)];
+    });
+    const type = assignType(r);
+    return [
+      r.id, r.timestamp,
+      r.attributes.ageGroup, r.attributes.yearsOfExperience, r.attributes.technicalField, r.attributes.companySize, r.attributes.roleLevel,
+      ...AWARENESS_DIMS.map(d => r.beforeAwareness[d]),
+      ...qData,
+      ...AWARENESS_DIMS.map(d => r.afterAwareness[d]),
+      esc(r.actionDeclaration), r.computed.totalShift, type.name
+    ].join(',');
+  });
+
+  const csv = '\uFEFF' + headers.join(',') + '\n' + rows.join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `engineer_survey_${new Date().toISOString().slice(0, 10)}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// ===== Demo Data =====
+function generateDemoData(count) {
+  const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+  const randLikert = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+  const sampleTexts = [
+    '品質チェックを三重に行い不良品を出さない体制を整えている',
+    'コードレビューの文化が徹底されている',
+    '毎日の小さな改善提案が年間で大きなコスト削減につながった',
+    'お客様の声を直接聞き製品に反映するプロセスがある',
+    '安全基準を常に業界最高水準に保っている',
+    '若手への技術伝承を重視している',
+    'チーム全員がお互いの仕事を理解し助け合える',
+    '海外拠点との品質基準の統一に取り組んでいる',
+    '失敗から学んだノウハウをデータベース化した',
+    'AIを活用した検査システムを現場主導で開発した'
+  ];
+  const sampleActions = [
+    '週1回、技術共有会を開催する',
+    '海外のエンジニアと交流する機会を作る',
+    '若手に自分の経験を積極的に伝える',
+    '新しい技術の学習時間を確保する',
+    '失敗事例を恐れずに共有する文化を作る',
+    'チーム内で改善提案を毎月実施する'
+  ];
+
+  const categories = {
+    q1: ['quality_control', 'documentation', 'teamwork', 'deadline', 'safety', 'customer_care'],
+    q2: ['process_improvement', 'cost_reduction', 'automation', 'communication', 'tool_development', 'standard_upgrade'],
+    q3: ['product_innovation', 'service_creation', 'cross_industry', 'social_problem', 'efficiency_tool', 'quality_of_life'],
+    q4: ['technology_transfer', 'material_discovery', 'process_knowledge', 'failure_analysis', 'resilience', 'unexpected_use'],
+    q5: ['education_mentoring', 'knowledge_sharing', 'culture_preservation', 'global_collaboration', 'new_technology', 'work_environment']
+  };
+
+  const responses = getResponses();
+  for (let i = 0; i < count; i++) {
+    const before = {};
+    const after = {};
+    AWARENESS_DIMS.forEach(d => {
+      before[d] = randLikert(1, 4);
+      after[d] = Math.min(5, before[d] + randLikert(0, 2));
+    });
+
+    const coreQuestions = {};
+    Q_KEYS.forEach((qk, qi) => {
+      coreQuestions[qk + '_' + Q_NAMES[qi]] = {
+        likert: randLikert(2, 5),
+        category: pick(categories[qk]),
+        freeText: Math.random() > 0.3 ? pick(sampleTexts) : ''
+      };
+    });
+
+    const shifts = {};
+    let totalShift = 0;
+    AWARENESS_DIMS.forEach(d => { shifts[d] = after[d] - before[d]; totalShift += shifts[d]; });
+    const strengthProfile = Q_KEYS.map((qk, qi) => coreQuestions[qk + '_' + Q_NAMES[qi]].likert);
+
+    responses.push({
+      id: 'demo_' + Date.now() + '_' + i,
+      timestamp: new Date(Date.now() - Math.random() * 30 * 86400000).toISOString(),
+      attributes: {
+        ageGroup: pick(['20-29', '30-39', '40-49', '50-59', '60+']),
+        yearsOfExperience: pick(['0-3', '3-5', '5-10', '10-15', '15-20', '20+']),
+        technicalField: pick(['manufacturing', 'software', 'electronics', 'automotive', 'chemical', 'infrastructure', 'energy']),
+        companySize: pick(['startup', 'small', 'medium', 'large', 'enterprise']),
+        roleLevel: pick(['junior', 'mid', 'senior', 'lead', 'manager', 'executive'])
+      },
+      beforeAwareness: before,
+      afterAwareness: after,
+      coreQuestions,
+      actionDeclaration: pick(sampleActions),
+      computed: { awarenessShift: shifts, totalShift, strengthProfile, clusterInput: [...Object.values(before), ...strengthProfile] }
+    });
+  }
+  saveResponses(responses);
+  alert(`${count}件のデモデータを追加しました（合計: ${responses.length}件）`);
+  // Re-render if on dashboard
+  if (document.getElementById('section-dashboard').classList.contains('active')) {
+    renderDashboard(responses[responses.length - 1], responses);
+  }
+}
+
+function clearAllData() {
+  if (confirm('全ての回答データを削除しますか？この操作は元に戻せません。')) {
+    localStorage.removeItem(STORAGE_KEY);
+    alert('全データを削除しました');
+    if (document.getElementById('section-dashboard').classList.contains('active')) {
+      navigateTo('landing');
+    }
+  }
+}
+
+// ===== Init =====
+function init() {
+  // Particle background
+  const bg = document.getElementById('particleBg');
+  for (let i = 0; i < 30; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.left = Math.random() * 100 + '%';
+    p.style.animationDuration = (8 + Math.random() * 12) + 's';
+    p.style.animationDelay = Math.random() * 10 + 's';
+    p.style.width = p.style.height = (2 + Math.random() * 4) + 'px';
+    bg.appendChild(p);
+  }
+
+  // Respondent count
+  const count = getResponses().length;
+  document.getElementById('respondentCount').textContent = count;
+}
+
+init();
+</script>
+</body>
+</html>
