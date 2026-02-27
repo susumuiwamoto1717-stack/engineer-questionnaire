@@ -36,13 +36,13 @@ body {
 
 /* ===== Sections ===== */
 .section {
-  display: none;
+  display: none !important;
   min-height: 100vh;
   padding: 40px 20px;
   animation: fadeIn 0.6s ease;
 }
-.section.active { display: block; }
-#section-landing.active { display: flex; }
+.section.active { display: block !important; }
+#section-landing.active { display: flex !important; }
 
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(20px); }
@@ -298,8 +298,7 @@ textarea::placeholder { color: var(--text-secondary); opacity: 0.6; }
 .context-box .examples { color: var(--text-secondary); font-size: 13px; }
 
 /* ===== Landing ===== */
-#section-landing {
-  display: flex;
+#section-landing.active {
   align-items: center;
   justify-content: center;
   text-align: center;
